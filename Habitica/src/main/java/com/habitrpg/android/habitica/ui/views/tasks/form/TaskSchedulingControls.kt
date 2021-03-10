@@ -197,6 +197,10 @@ class TaskSchedulingControls @JvmOverloads constructor(
         })
         binding.weeklyRepeatWrapper.visibility = if (frequency == Task.FREQUENCY_WEEKLY && taskType == Task.TYPE_DAILY) View.VISIBLE else View.GONE
         binding.monthlyRepeatWrapper.visibility = if (frequency == Task.FREQUENCY_MONTHLY && taskType == Task.TYPE_DAILY) View.VISIBLE else View.GONE
+
+        val tweakOnceAWeekVisibility = if (taskType == Task.TYPE_DAILY && frequency == Task.FREQUENCY_WEEKLY) View.VISIBLE else View.GONE
+        binding.tweakOnceAWeek.visibility = tweakOnceAWeekVisibility;
+
         if (frequency == Task.FREQUENCY_WEEKLY) {
             createWeeklyRepeatViews()
         } else if (frequency == Task.FREQUENCY_MONTHLY) {
