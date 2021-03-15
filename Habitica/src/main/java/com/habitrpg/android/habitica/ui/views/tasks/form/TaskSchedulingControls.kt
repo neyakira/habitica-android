@@ -68,6 +68,11 @@ class TaskSchedulingControls @JvmOverloads constructor(
         configureViewsForFrequency()
         generateSummary()
     }
+    var tweakOnceAWeek
+        get() = (binding.tweakOnceAWeek.isChecked)
+    set(value) {
+        binding.tweakOnceAWeek.isChecked = value
+    }
     var everyX
         get() = (binding.repeatsEveryEdittext.text ?: "1").toString().toIntOrNull() ?: 1
     set(value) {

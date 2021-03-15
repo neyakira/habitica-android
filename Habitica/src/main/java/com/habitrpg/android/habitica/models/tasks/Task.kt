@@ -59,6 +59,7 @@ open class Task : RealmObject, BaseObject, Parcelable {
     var reminders: RealmList<RemindersItem>? = RealmList()
     //dailies
     var frequency: String? = null
+    var tweakOnceAWeek: Boolean = false //tweak_once_a_week
     var everyX: Int? = 0
     var streak: Int? = 0
     var startDate: Date? = null
@@ -281,6 +282,7 @@ open class Task : RealmObject, BaseObject, Parcelable {
         dest.writeList(this.checklist as? List<*>)
         dest.writeList(this.reminders as? List<*>)
         dest.writeString(this.frequency)
+        dest.writeByte(if (this.tweakOnceAWeek) 1.toByte() else 0.toByte())
         dest.writeValue(this.everyX)
         dest.writeValue(this.streak)
         dest.writeLong(this.startDate?.time ?: -1)
@@ -315,6 +317,7 @@ open class Task : RealmObject, BaseObject, Parcelable {
         this.reminders = RealmList()
         `in`.readList(this.reminders as MutableList<Any?>, RemindersItem::class.java.classLoader)
         this.frequency = `in`.readString()
+        this.tweakOnceAWeek = `in`.readByte().toInt() != 0
         this.everyX = `in`.readValue(Int::class.java.classLoader) as? Int ?: 1
         this.streak = `in`.readValue(Int::class.java.classLoader) as? Int ?: 0
         val tmpStartDate = `in`.readLong()

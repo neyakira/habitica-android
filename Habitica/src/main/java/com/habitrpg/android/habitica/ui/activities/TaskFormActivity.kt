@@ -1,9 +1,11 @@
 package com.habitrpg.android.habitica.ui.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.database.DatabaseUtils
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -22,6 +24,7 @@ import com.habitrpg.android.habitica.data.ChallengeRepository
 import com.habitrpg.android.habitica.data.TagRepository
 import com.habitrpg.android.habitica.data.TaskRepository
 import com.habitrpg.android.habitica.data.UserRepository
+import com.habitrpg.android.habitica.data.implementation.TaskRepositoryImpl
 import com.habitrpg.android.habitica.databinding.ActivityTaskFormBinding
 import com.habitrpg.android.habitica.extensions.OnChangeTextWatcher
 import com.habitrpg.android.habitica.extensions.addCancelButton
@@ -337,6 +340,7 @@ class TaskFormActivity : BaseActivity() {
         if (!task.isValid) {
             return
         }
+
         canSave = true
         binding.textEditText.setText(task.text)
         binding.notesEditText.setText(task.notes)
@@ -367,6 +371,12 @@ class TaskFormActivity : BaseActivity() {
                 binding.taskSchedulingControls.weeksOfMonth = task.getWeeksOfMonth()
                 binding.habitAdjustPositiveStreakView.setText((task.streak ?: 0).toString())
                 binding.taskSchedulingControls.frequency = task.frequency ?: Task.FREQUENCY_DAILY
+
+                //TODO MJ load task tweak
+                val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+                task.tweakOnceAWeek = sharedPref.getBoolean("NEYA_TWEAK_"+task.id, false)
+                binding.taskSchedulingControls.tweakOnceAWeek = task.tweakOnceAWeek
+
             }
             Task.TYPE_TODO -> binding.taskSchedulingControls.dueDate = task.dueDate
             Task.TYPE_REWARD -> binding.rewardValue.value = task.value
@@ -441,6 +451,7 @@ class TaskFormActivity : BaseActivity() {
             thisTask.startDate = binding.taskSchedulingControls.startDate
             thisTask.everyX = binding.taskSchedulingControls.everyX
             thisTask.frequency = binding.taskSchedulingControls.frequency
+            thisTask.tweakOnceAWeek = binding.taskSchedulingControls.tweakOnceAWeek
             thisTask.repeat = binding.taskSchedulingControls.weeklyRepeat
             thisTask.setDaysOfMonth(binding.taskSchedulingControls.daysOfMonth)
             thisTask.setWeeksOfMonth(binding.taskSchedulingControls.weeksOfMonth)
@@ -477,6 +488,13 @@ class TaskFormActivity : BaseActivity() {
             }
         } else {
                 resultIntent.putExtra(PARCELABLE_TASK, thisTask)
+        }
+
+        //TODO MJ save in local storage
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE) ?: return
+        with (sharedPref.edit()) {
+            putBoolean("NEYA_TWEAK_"+thisTask.id, thisTask.tweakOnceAWeek)
+            apply()
         }
 
         val mainHandler = Handler(this.mainLooper)
